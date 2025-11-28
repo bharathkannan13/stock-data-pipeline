@@ -428,7 +428,7 @@ This project demonstrates proficiency in:
 
 ## Author
 
-**Bharath Kannan**  
+**Bharath Kannan R**  
 Data | Python | Apache Airflow | PostgreSQL | Docker
 
 *Specialized in building scalable data pipelines and ETL systems for enterprise environments*

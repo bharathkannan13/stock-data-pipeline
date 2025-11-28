@@ -1,0 +1,54 @@
+version: "3.8"
+
+services:
+  airflow:
+    image: apache/airflow:2.7.1
+    container_name: airflow_app
+    restart: always
+    depends_on:
+      - airflow-init
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+
+      # DATABASE: using your LOCAL WINDOWS PostgreSQL
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://stockuser:stockpass@host.docker.internal:5432/stockdb
+
+      # Environment variables passed into Airflow
+      STOCK_API_KEY: ${STOCK_API_KEY}
+      STOCK_SYMBOLS: ${STOCK_SYMBOLS}
+
+      DB_HOST: host.docker.internal
+      DB_PORT: 5432
+      DB_NAME: stockdb
+      DB_USER: stockuser
+      DB_PASS: stockpass
+
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./scripts:/opt/airflow/scripts
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+
+    command: >
+      bash -c "airflow scheduler & airflow webserver"
+
+    ports:
+      - "8080:8080"
+
+
+
+  airflow-init:
+    image: apache/airflow:2.7.1
+    container_name: airflow_init
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://stockuser:stockpass@host.docker.internal:5432/stockdb
+    command: >
+      bash -c "airflow db init &&
+               airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password admin || true"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./scripts:/opt/airflow/scripts
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
